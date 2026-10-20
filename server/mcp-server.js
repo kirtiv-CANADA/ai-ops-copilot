@@ -2,7 +2,7 @@ const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
 const { z } = require('zod');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -21,7 +21,10 @@ server.tool(
   },
   async ({ emailText }) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-3.5-flash-lite',
+        generationConfig: { responseMimeType: "application/json" }
+      });
 
       const prompt = `You are an assistant that extracts tasks from client emails.
 
@@ -32,7 +35,7 @@ Format:
   "tasks": [
     {
       "title": "short description of the task",
-      "client": "client name or 'Unknown' if not stated",
+      "client": "client name",
       "deadline": "YYYY-MM-DD or 'No deadline' if not stated",
       "priority": "high" | "medium" | "low"
     }
@@ -41,8 +44,10 @@ Format:
 
 Rules:
 - Extract every distinct actionable task
-- Use today's date (${new Date().toISOString().split('T')[0]}) as reference for relative deadlines like "Friday"
-- Priority: high if urgent/short deadline, medium default, low if vague/someday
+- For "client": ALWAYS look at the email's signoff/signature. If multiple names appear, use the sender's name. Only use "Unknown" if truly no name exists.
+- Use today's date (${new Date().toISOString().split('T')[0]}) as reference for relative deadlines
+- Convert all deadlines to YYYY-MM-DD format
+- Priority: high if urgent/critical/ASAP or deadline within 3 days, medium default, low if "no rush"/"whenever"
 
 Email:
 """
@@ -95,7 +100,7 @@ server.tool(
   })
 );
 
-// Start the MCP server on stdio (standard transport for local MCP)
+// Start the MCP server on stdio
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);

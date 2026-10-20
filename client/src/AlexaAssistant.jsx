@@ -1,12 +1,11 @@
 import { useState } from 'react';
 
-function AlexaAssistant() {
+function AlexaAssistant({ onTasksChanged }) {
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
 
-  // Voice input via Web Speech API
   const startListening = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert('Voice not supported in this browser. Please use Chrome or Edge.');
@@ -27,13 +26,8 @@ function AlexaAssistant() {
       setListening(false);
     };
 
-    recognition.onerror = () => {
-      setListening(false);
-    };
-
-    recognition.onend = () => {
-      setListening(false);
-    };
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => setListening(false);
 
     recognition.start();
   };
@@ -51,6 +45,7 @@ function AlexaAssistant() {
       });
       const data = await res.json();
       setResponse(data);
+      if (res.ok && onTasksChanged) onTasksChanged();
     } catch (err) {
       setResponse({ error: err.message });
     } finally {
@@ -183,7 +178,9 @@ function AlexaAssistant() {
           {response.tasks && (
             <div>
               <p style={{ margin: '0 0 8px 0' }}>
-                ✅ Found {response.tasks.length} task{response.tasks.length !== 1 ? 's' : ''}:
+                {response.tasks.length === 0 
+                  ? '⚠️ No new tasks (already saved, or none found)' 
+                  : `✅ Found ${response.tasks.length} task${response.tasks.length !== 1 ? 's' : ''}:`}
               </p>
               {response.tasks.map((t, i) => (
                 <div

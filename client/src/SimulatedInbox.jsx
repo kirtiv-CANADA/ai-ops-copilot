@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function SimulatedInbox({ tasks, onStatusUpdated }) {
   const [selectedTaskId, setSelectedTaskId] = useState('');
   const [replyText, setReplyText] = useState('');
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  // Reset dropdown if selected task is deleted (e.g., via Clear All)
+  useEffect(() => {
+    if (selectedTaskId && !tasks.some((t) => t._id === selectedTaskId)) {
+      setSelectedTaskId('');
+      setAnalysis(null);
+    }
+  }, [tasks, selectedTaskId]);
 
   const handleAnalyze = async () => {
     if (!selectedTaskId || !replyText.trim()) return;
@@ -21,7 +30,8 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
         alert('Error: ' + (data.details || data.error));
         return;
       }
-      setAnalysis(data);
+      // Save the taskId inside the analysis object to prevent stale updates
+      setAnalysis({ ...data, taskId: selectedTaskId });
     } catch (err) {
       alert('Network error: ' + err.message);
     } finally {
@@ -30,9 +40,11 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
   };
 
   const handleUpdateStatus = async () => {
-    if (!analysis || !selectedTaskId) return;
+    if (!analysis) return;
+    setUpdating(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${selectedTaskId}`, {
+      // Use analysis.taskId instead of selectedTaskId
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${analysis.taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: analysis.suggestedStatus }),
@@ -49,6 +61,8 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
       if (onStatusUpdated) onStatusUpdated();
     } catch (err) {
       alert('Network error: ' + err.message);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -111,7 +125,10 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
       </label>
       <select
         value={selectedTaskId}
-        onChange={(e) => setSelectedTaskId(e.target.value)}
+        onChange={(e) => {
+          setSelectedTaskId(e.target.value);
+          setAnalysis(null); // Clear old analysis
+        }}
         style={{
           width: '100%',
           padding: '10px 12px',
@@ -135,7 +152,10 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
       </label>
       <textarea
         value={replyText}
-        onChange={(e) => setReplyText(e.target.value)}
+        onChange={(e) => {
+          setReplyText(e.target.value);
+          setAnalysis(null); // Clear old analysis
+        }}
         placeholder='e.g., "Thanks, I just finished it and sent it over."'
         style={{
           width: '100%',
@@ -207,18 +227,19 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
 
           <button
             onClick={handleUpdateStatus}
+            disabled={updating}
             style={{
               padding: '10px 20px',
               fontSize: 14,
-              background: '#2e7d32',
+              background: updating ? '#999' : '#2e7d32',
               color: 'white',
               border: 'none',
               borderRadius: 6,
-              cursor: 'pointer',
+              cursor: updating ? 'wait' : 'pointer',
               fontWeight: 600,
             }}
           >
-            ✅ Update Status to "{analysis.suggestedStatus}"
+            {updating ? 'Updating...' : `✅ Update Status to "${analysis.suggestedStatus}"`}
           </button>
         </div>
       )}

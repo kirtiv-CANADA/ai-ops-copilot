@@ -38,10 +38,16 @@ function App() {
         body: JSON.stringify({ emailText }),
       });
       const data = await res.json();
+      
       if (!res.ok) {
         alert('Backend error: ' + (data.details || data.error));
         return;
       }
+
+      if (data.tasks && data.tasks.length === 0) {
+        alert('No new tasks. They may already exist, or none were found.');
+      }
+
       await fetchTasks();
       setEmailText('');
     } catch (err) {
@@ -98,7 +104,7 @@ function App() {
         alert('Error: ' + (data.details || data.error));
         return;
       }
-      alert(`✅ Reminder sent to ${data.to}`);
+      alert(`✅ Reminder sent to ${data.to} (Simulated)`);
       setReminderModal(null);
     } catch (err) {
       alert('Network error: ' + err.message);
@@ -119,7 +125,7 @@ function App() {
 
   return (
     <div style={{ maxWidth: 800, margin: '40px auto', padding: 20, fontFamily: 'system-ui' }}>
-      <AlexaAssistant />
+      <AlexaAssistant onTasksChanged={fetchTasks} />
 
       <h1>AI Ops Copilot</h1>
       <p style={{ color: '#666' }}>Paste a messy client email — AI extracts the tasks.</p>
@@ -185,7 +191,7 @@ function App() {
           )}
         </div>
 
-        {loadingTasks && <p style={{ color: '#999' }}>Loading tasks...</p>}
+        {loadingTasks && <p style={{ color: '#999' }}>Waking up server & loading tasks...</p>}
 
         {!loadingTasks && tasks.length === 0 && (
           <p style={{ color: '#999' }}>No tasks yet. Paste an email above to get started.</p>
