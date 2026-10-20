@@ -5,6 +5,7 @@ function AlexaAssistant({ onTasksChanged }) {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
+  const [slow, setSlow] = useState(false); // NAYA STATE
 
   const startListening = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -36,6 +37,10 @@ function AlexaAssistant({ onTasksChanged }) {
     if (!command.trim()) return;
     setLoading(true);
     setResponse(null);
+    setSlow(false);
+    
+    // Timer lagaya gaya hai
+    const slowTimer = setTimeout(() => setSlow(true), 6000);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mcp/parse-email`, {
@@ -49,7 +54,9 @@ function AlexaAssistant({ onTasksChanged }) {
     } catch (err) {
       setResponse({ error: err.message });
     } finally {
+      clearTimeout(slowTimer); // Timer clear karo
       setLoading(false);
+      setSlow(false);
     }
   };
 
@@ -86,7 +93,6 @@ function AlexaAssistant({ onTasksChanged }) {
         </span>
       </div>
 
-      {/* NAYA TEXT YAHAN HAI */}
       <p style={{ fontSize: 13, opacity: 0.85, marginTop: 0 }}>
         Simulated Alexa+ assistant. Type or speak a command, and it will find the tasks for you.
       </p>
@@ -140,7 +146,10 @@ function AlexaAssistant({ onTasksChanged }) {
             cursor: loading ? 'wait' : 'pointer',
           }}
         >
-          {loading ? 'Alexa is thinking...' : '🗣️ Ask Alexa'}
+          {/* YAHAN SLOW MESSAGE UPDATE HUA HAI */}
+          {loading
+            ? (slow ? 'Waking up the server (first request can take up to a minute)...' : 'Alexa is thinking...')
+            : '🗣️ Ask Alexa'}
         </button>
         {(command || response) && (
           <button
