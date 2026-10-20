@@ -1,3 +1,12 @@
+## ⚡ Judge Quick Start Guide
+If you are a judge testing this project, follow these steps for the best experience:
+
+1. **Wait for Backend:** Open the Live Demo link. The Render backend might take **30–60 seconds to wake up** on the first request (Free Tier limitation).
+2. **Test Email Parsing:** Click the **"📝 Try sample email"** button, then click **"Extract Tasks"**. The AI will extract 4 tasks from the sample email.
+3. **Test Reminders:** Click the **"📧 Remind"** button on any task. The AI will generate a polite email draft.
+4. **Test Reply Analysis:** Use the **"Simulated Inbox"** section at the bottom. Select a task, paste a reply (e.g., *"Thanks, I finished it and sent it over"*), and click **"Analyze Reply"**. The AI will suggest a status update.
+5. **Test Alexa+ Integration:** Use the **"Alexa+ Assistant"** box at the top. Paste an email and click **"Ask Alexa"** to see the MCP server in action.
+
 # AI Ops Copilot
 
 An AI-powered operations co-pilot for freelancers and small teams. It eliminates manual admin work by turning messy client emails into structured tasks, drafting smart reminders, and automatically updating task statuses when clients reply.
