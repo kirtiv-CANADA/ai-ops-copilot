@@ -1,5 +1,6 @@
 ## ⚡ Judge Quick Start Guide
-If you are a judge testing this project, follow these steps for the best experience:
+If you are a judge testing this project, follow these steps for the best experience
+"👉 For step-by-step testing instructions, please read TESTING.md":
 
 1. **Wait for Backend:** Open the Live Demo link. The Render backend might take **30–60 seconds to wake up** on the first request (Free Tier limitation).
 2. **Test Email Parsing:** Click the **"📝 Try sample email"** button, then click **"Extract Tasks"**. The AI will extract 4 tasks from the sample email.
