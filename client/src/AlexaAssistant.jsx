@@ -86,8 +86,9 @@ function AlexaAssistant({ onTasksChanged }) {
         </span>
       </div>
 
+      {/* NAYA TEXT YAHAN HAI */}
       <p style={{ fontSize: 13, opacity: 0.85, marginTop: 0 }}>
-        Type or speak a command. Alexa+ will call the MCP server to process it.
+        Simulated Alexa+ assistant. Type or speak a command, and it will find the tasks for you.
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>

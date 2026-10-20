@@ -233,7 +233,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
   }
 });
 
-// --- Draft a polite reminder for a task ---
+// --- Draft a polite reminder for a task (UPDATED PROMPT) ---
 app.post('/api/draft-reminder', apiLimiter, async (req, res) => {
   const { taskId } = req.body;
 
@@ -250,15 +250,15 @@ app.post('/api/draft-reminder', apiLimiter, async (req, res) => {
     console.log(`--- Drafting reminder for: ${task.title} ---`);
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
 
-    const prompt = `You are an assistant that drafts short, polite reminder emails to clients.
+    const prompt = `You are a freelancer writing a short follow-up email to your client, ${task.client}.
 
-Write a professional reminder email for the following task. Keep it under 100 words. Be warm but direct. Do NOT include a subject line. Do NOT include signatures beyond a simple sign-off.
-
-Task details:
-- Title: ${task.title}
-- Client: ${task.client}
+Write a friendly, professional email (under 90 words) about this task:
+- Task: ${task.title}
 - Deadline: ${task.deadline}
 - Priority: ${task.priority}
+
+Politely check in on the status of this task and mention the deadline. Ask if anything is blocking it or if they need anything from you.
+Do NOT include a subject line. End with just "Best regards," and no name or placeholder like [Your Name].
 
 Return ONLY the email body text, no JSON, no markdown.`;
 

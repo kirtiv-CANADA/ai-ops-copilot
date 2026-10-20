@@ -218,6 +218,7 @@ function App() {
             style={{
               padding: 16, marginBottom: 10, border: '1px solid #eee',
               borderLeft: `4px solid ${priorityColor(t.priority)}`, borderRadius: 6, background: '#fafafa',
+              textAlign: 'left', // <--- YEH ADD KIYA HAI
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
@@ -264,7 +265,12 @@ function App() {
             <p style={{ fontSize: 13, color: '#666', margin: '0 0 12px 0' }}>
               <strong>Task:</strong> {reminderModal.taskTitle}
             </p>
-            <div style={{ padding: 16, background: '#f5f5f5', borderRadius: 8, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: 16 }}>
+            <div 
+              style={{ 
+                padding: 16, background: '#f5f5f5', borderRadius: 8, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: 16,
+                textAlign: 'left', // <--- YEH ADD KIYA HAI
+              }}
+            >
               {reminderModal.draft}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
