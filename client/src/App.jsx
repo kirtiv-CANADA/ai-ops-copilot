@@ -2,6 +2,27 @@ import AlexaAssistant from './AlexaAssistant';
 import SimulatedInbox from './SimulatedInbox';
 import { useState, useEffect } from 'react';
 
+const SAMPLE_EMAILS = [
+  {
+    label: 'Project update',
+    text: `Hi team,
+Quick update on the Riverstone launch. Please send me the final invoice by Friday.
+Also, can someone review the brand guidelines PDF and share feedback by October 28?
+Not urgent, but whenever you get time, update the website footer with our new address.
+URGENT: the client demo slides must be ready by tomorrow morning!
+Thanks,
+Priya Sharma`,
+  },
+  {
+    label: 'Short & messy',
+    text: `hey, can u send the logo files again?? also pls confirm the meeting time for next monday. cheers, Rahul`,
+  },
+  {
+    label: 'Urgent request',
+    text: `Hello, our website is down and customers can't check out. Please fix the payment page ASAP and send me a short report by tomorrow evening. Regards, Meera Iyer`,
+  },
+];
+
 function App() {
   const [emailText, setEmailText] = useState('');
   const [tasks, setTasks] = useState([]);
@@ -15,7 +36,6 @@ function App() {
   }, []);
 
   const fetchTasks = async () => {
-    setLoadingTasks(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks`);
       const data = await res.json();
@@ -112,11 +132,7 @@ function App() {
   };
 
   const statusColor = (s) => {
-    const colors = {
-      done: '#2e7d32',
-      'in-progress': '#e65100',
-      pending: '#616161',
-    };
+    const colors = { done: '#2e7d32', 'in-progress': '#e65100', pending: '#616161' };
     return colors[s] || '#666';
   };
 
@@ -130,60 +146,59 @@ function App() {
       <h1>AI Ops Copilot</h1>
       <p style={{ color: '#666' }}>Paste a messy client email — AI extracts the tasks.</p>
 
+      {/* 3 Sample Email Buttons */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+        {SAMPLE_EMAILS.map((s) => (
+          <button
+            key={s.label}
+            onClick={() => setEmailText(s.text)}
+            style={{
+              padding: '6px 12px',
+              fontSize: 13,
+              background: '#e3f2fd',
+              color: '#1976d2',
+              border: '1px solid #90caf9',
+              borderRadius: 16,
+              cursor: 'pointer',
+            }}
+          >
+            ✨ {s.label}
+          </button>
+        ))}
+      </div>
+
       <textarea
         value={emailText}
         onChange={(e) => setEmailText(e.target.value)}
         placeholder="Paste client email here..."
         style={{
-          width: '100%',
-          height: 160,
-          padding: 12,
-          fontSize: 14,
-          fontFamily: 'monospace',
-          border: '1px solid #ccc',
-          borderRadius: 8,
-          boxSizing: 'border-box',
+          width: '100%', height: 160, padding: 12, fontSize: 14, fontFamily: 'monospace',
+          border: '1px solid #ccc', borderRadius: 8, boxSizing: 'border-box',
         }}
       />
 
-      <button
-        onClick={handleExtract}
-        disabled={loading || !emailText.trim()}
-        style={{
-          marginTop: 12,
-          padding: '10px 20px',
-          fontSize: 15,
-          background: loading ? '#999' : '#1976d2',
-          color: 'white',
-          border: 'none',
-          borderRadius: 6,
-          cursor: loading ? 'wait' : 'pointer',
-        }}
-      >
-        {loading ? 'Extracting...' : 'Extract Tasks'}
-      </button>
-
-      <div style={{ marginTop: 30 }}>
-        <div
+      <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center' }}>
+        <button
+          onClick={handleExtract}
+          disabled={loading || !emailText.trim()}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 12,
+            padding: '10px 20px', fontSize: 15, background: loading ? '#999' : '#1976d2',
+            color: 'white', border: 'none', borderRadius: 6, cursor: loading ? 'wait' : 'pointer', fontWeight: 600,
           }}
         >
+          {loading ? 'Extracting...' : 'Extract Tasks'}
+        </button>
+      </div>
+
+      <div style={{ marginTop: 30 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <h2 style={{ margin: 0 }}>Tasks ({tasks.length})</h2>
           {tasks.length > 0 && (
             <button
               onClick={handleClearAll}
               style={{
-                padding: '6px 14px',
-                fontSize: 13,
-                background: '#fff',
-                color: '#e53935',
-                border: '1px solid #e53935',
-                borderRadius: 6,
-                cursor: 'pointer',
+                padding: '6px 14px', fontSize: 13, background: '#fff', color: '#e53935',
+                border: '1px solid #e53935', borderRadius: 6, cursor: 'pointer',
               }}
             >
               🗑️ Clear All
@@ -194,50 +209,31 @@ function App() {
         {loadingTasks && <p style={{ color: '#999' }}>Waking up server & loading tasks...</p>}
 
         {!loadingTasks && tasks.length === 0 && (
-          <p style={{ color: '#999' }}>No tasks yet. Paste an email above to get started.</p>
+          <p style={{ color: '#999' }}>No tasks yet. Paste an email above or try a sample.</p>
         )}
 
         {tasks.map((t) => (
           <div
             key={t._id}
             style={{
-              padding: 16,
-              marginBottom: 10,
-              border: '1px solid #eee',
-              borderLeft: `4px solid ${priorityColor(t.priority)}`,
-              borderRadius: 6,
-              background: '#fafafa',
+              padding: 16, marginBottom: 10, border: '1px solid #eee',
+              borderLeft: `4px solid ${priorityColor(t.priority)}`, borderRadius: 6, background: '#fafafa',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: 12,
-              }}
-            >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <div style={{ flex: 1 }}>
                 <strong>{t.title}</strong>
                 <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>
                   {t.client} · Deadline: {t.deadline} · Priority: {t.priority} ·{' '}
-                  <span style={{ color: statusColor(t.status), fontWeight: 600 }}>
-                    Status: {t.status}
-                  </span>
+                  <span style={{ color: statusColor(t.status), fontWeight: 600 }}>Status: {t.status}</span>
                 </div>
               </div>
               <button
                 onClick={() => handleDraftReminder(t._id)}
                 disabled={draftingId === t._id}
                 style={{
-                  padding: '6px 12px',
-                  fontSize: 13,
-                  background: draftingId === t._id ? '#ccc' : '#00b894',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: draftingId === t._id ? 'wait' : 'pointer',
-                  whiteSpace: 'nowrap',
+                  padding: '6px 12px', fontSize: 13, background: draftingId === t._id ? '#ccc' : '#00b894',
+                  color: 'white', border: 'none', borderRadius: 6, cursor: draftingId === t._id ? 'wait' : 'pointer', whiteSpace: 'nowrap',
                 }}
               >
                 {draftingId === t._id ? 'Drafting...' : '📧 Remind'}
@@ -252,78 +248,35 @@ function App() {
       {reminderModal && (
         <div
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
           }}
           onClick={() => setReminderModal(null)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'white',
-              borderRadius: 12,
-              padding: 24,
-              maxWidth: 600,
-              width: '90%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              fontFamily: 'system-ui',
+              background: 'white', borderRadius: 12, padding: 24, maxWidth: 600, width: '90%',
+              maxHeight: '80vh', overflow: 'auto', fontFamily: 'system-ui',
             }}
           >
             <h3 style={{ marginTop: 0 }}>📧 Reminder Draft</h3>
             <p style={{ fontSize: 13, color: '#666', margin: '0 0 12px 0' }}>
               <strong>Task:</strong> {reminderModal.taskTitle}
             </p>
-
-            <div
-              style={{
-                padding: 16,
-                background: '#f5f5f5',
-                borderRadius: 8,
-                fontSize: 14,
-                lineHeight: 1.6,
-                whiteSpace: 'pre-wrap',
-                marginBottom: 16,
-              }}
-            >
+            <div style={{ padding: 16, background: '#f5f5f5', borderRadius: 8, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: 16 }}>
               {reminderModal.draft}
             </div>
-
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setReminderModal(null)}
-                style={{
-                  padding: '10px 20px',
-                  fontSize: 14,
-                  background: '#eee',
-                  color: '#333',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                }}
+                style={{ padding: '10px 20px', fontSize: 14, background: '#eee', color: '#333', border: 'none', borderRadius: 6, cursor: 'pointer' }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendReminder}
-                style={{
-                  padding: '10px 20px',
-                  fontSize: 14,
-                  background: '#00b894',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                }}
+                style={{ padding: '10px 20px', fontSize: 14, background: '#00b894', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
               >
                 Send Reminder
               </button>

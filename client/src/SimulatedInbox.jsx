@@ -150,6 +150,28 @@ function SimulatedInbox({ tasks, onStatusUpdated }) {
       <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>
         Paste the client's reply:
       </label>
+      
+      {/* NAYA BUTTON: Try Sample Reply */}
+      <div style={{ marginBottom: 6 }}>
+        <button
+          onClick={() => {
+            setReplyText("Thanks, I just finished it and sent it over.");
+            setAnalysis(null);
+          }}
+          style={{
+            fontSize: 12,
+            color: '#1976d2',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            padding: 0,
+          }}
+        >
+          (Try sample reply)
+        </button>
+      </div>
+
       <textarea
         value={replyText}
         onChange={(e) => {
