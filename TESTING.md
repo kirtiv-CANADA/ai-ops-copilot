@@ -1,42 +1,74 @@
-# 🧪 How to Test - AI Ops Copilot
+# 🧪 Judge Testing Guide - AI Ops Copilot
 
-Thank you for reviewing my project! This app is fully deployed live. 
+Thank you for reviewing! This app is fully deployed live.
 **Live Demo URL:** [https://ai-ops-copilot-two.vercel.app](https://ai-ops-copilot-two.vercel.app)
 
-*⚠️ **Note:** The backend is hosted on Render's Free Tier. If the server was asleep, the first request may take **30-60 seconds** to wake up. I have added a "Waking up the server..." message so you know it's working.*
+*⚠️ Note: The backend is on Render's free tier. If the first request takes 30-60 seconds, the server is just waking up. You will see a "Waking up the server..." message on the button. Please wait.*
 
-Here are the exact test cases to try out all the AI features:
+Here is the exact step-by-step guide to test every feature:
 
 ---
 
-### Test 1: Smart Email Parsing (Extract Tasks)
-1. Click on the **✨ Project update** sample button. (This auto-fills a messy client email).
-2. Click the blue **Extract Tasks** button.
-3. **What to expect:** The AI will extract 4 tasks, assign the correct client name ("Priya Sharma"), convert the dates into specific deadlines (e.g., Friday -> 2026-10-23), and set priorities (High/Medium/Low).
-4. *Try clicking "Extract Tasks" again with the same text. It will say "No new tasks" to prevent duplicates.*
+### Test 1: Smart Email Parsing (Testing Multiple Tasks)
+**Goal:** Verify the AI extracts multiple tasks, detects deadlines, and assigns priorities.
+
+1. Click the **"✨ Project update"** button (just above the text area). This will auto-fill a long email.
+2. Click the blue **"Extract Tasks"** button.
+3. **Result to check:** You should see **4 tasks** appear in the list below:
+   - "Send final invoice" (Deadline: Friday, High priority)
+   - "Review brand guidelines PDF" (Deadline: Oct 28, Medium priority)
+   - "Update website footer" (No deadline, Low priority)
+   - "Prepare client demo slides" (Deadline: Tomorrow, High priority)
+   - Client name for all tasks should be **"Priya Sharma"**.
+
+---
 
 ### Test 2: Auto-Draft Reminders
-1. On any task card, click the green **📧 Remind** button.
-2. **What to expect:** A modal will appear with a professional, polite follow-up email drafted by the AI. 
-3. Click **Send Reminder**. (Note: It will show "(Simulated)" because no real emails are sent for demo purposes).
-
-### Test 3: Simulated Inbox (Reply Analysis)
-1. Scroll down to the **📥 Simulated Inbox** section.
-2. In the dropdown, select the task you just created.
-3. Click the blue **(Try sample reply)** link to auto-fill a client response.
-4. Click **🔍 Analyze Reply**.
-5. **What to expect:** The AI will read the reply, detect the intent (e.g., "done"), and suggest a status update with high confidence.
-6. Click **✅ Update Status**. The task card's status will change to "done".
-
-### Test 4: Alexa+ MCP Integration (Simulated)
-1. Scroll to the top **🤖 Alexa+ Assistant** box.
-2. Type this command: `send the invoice by Friday, thanks Sam` (or click the 🎤 mic button and speak it).
-3. Click **🗣️ Ask Alexa**.
-4. **What to expect:** It will say "Waking up server..." (if cold) and then extract the task, setting the client as "Sam" and priority as "High".
-
-### Test 5: Database Persistence
-1. Refresh the page. 
-2. **What to expect:** All the tasks you created will remain on the screen (they are saved in MongoDB Atlas).
+1. Click the green **"📧 Remind"** button on any task card.
+2. **Result to check:** A modal will pop up with a politely written email drafted by the AI. It will include the task name and deadline.
+3. Click **"Send Reminder"**. You will see a confirmation: *"✅ Reminder sent (Simulated)"*.
 
 ---
-*Tech Stack: React, Node.js, Express, MongoDB, Google Gemini API, MCP SDK.*
+
+### Test 3: Simulated Inbox (Reply Analysis)
+1. Scroll down to the **"📥 Simulated Inbox"** section.
+2. Select a task from the dropdown (e.g., "Send final invoice").
+3. Click the blue **(Try sample reply)** link. This will auto-fill: *"Thanks, I just finished it and sent it over."*
+4. Click the **"🔍 Analyze Reply"** button.
+5. **Result to check:** The AI should detect the intent and show:
+   - Current Status: **pending**
+   - Suggested Status: **done**
+   - Confidence: **high**
+6. Click **"✅ Update Status to done"**. The task card above will now show a green **Status: done**.
+
+---
+
+### Test 4: Alexa+ Voice & MCP Integration (Simulated)
+**Goal:** Test the Voice API and the MCP (Model Context Protocol) backend tool.
+
+1. Scroll to the top blue box: **"🤖 Alexa+ Assistant"**.
+2. **For Voice Testing:**
+   - Click the **🎤 Microphone** button.
+   - Your browser will ask for Microphone permission. Click **Allow**.
+   - Wait for the red recording dot, then **speak clearly into your mic**:
+     > *"Send the invoice by Friday, thanks Sam"*
+   - The text should appear in the input box. Click **"🗣️ Ask Alexa"**.
+3. **For Text Testing (If mic doesn't work):**
+   - Type this in the box: `send the invoice by Friday, thanks Sam`
+   - Click **"🗣️ Ask Alexa"**.
+4. **Result to check:** 
+   - If the server is asleep, the button will say *"Waking up the server..."*.
+   - Once awake, it will show: **"✅ Found 1 task: Send invoice — Sam · [Date] · high"**.
+   - The task will automatically appear in the main task list below.
+
+---
+
+### Test 5: Database Persistence & Deduplication
+1. Look at the number of tasks you have (e.g., Tasks (5)).
+2. Click the **"Extract Tasks"** button again with the same "Project update" email.
+3. **Result to check:** An alert will pop up saying *"No new tasks. They may already exist..."*. The app prevents duplicate tasks.
+4. **Refresh the entire webpage (F5).**
+5. **Result to check:** All your tasks and their updated statuses (like "done") will remain on the screen, proving they are saved in MongoDB.
+
+---
+*Built with React, Node.js, Express, MongoDB, Google Gemini API, and MCP SDK.*
